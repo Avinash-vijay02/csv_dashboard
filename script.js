@@ -1,5 +1,4 @@
 let csvData = ""; // Store CSV content globally
-let allData = [];
 
 document.getElementById("fileInput").addEventListener("change", function () {
     const file = this.files[0];
@@ -11,25 +10,29 @@ document.getElementById("fileInput").addEventListener("change", function () {
 
     const reader = new FileReader();
     reader.onload = function (e) {
-        csvData = e.target.result; // Store the CSV content
-        allData = csvData.split("\n").map(row => row.split(",")); // Store full CSV data
+        csvData = e.target.result; // Store CSV content
     };
     reader.readAsText(file);
 });
 
+// SELECT ALL button: Opens a new page displaying all CSV data
 document.getElementById("selectAllBtn").addEventListener("click", function () {
     if (!csvData) {
         alert("Please upload a CSV file first.");
         return;
     }
-    displayData(allData.slice(1)); // Display all CSV data excluding header
+
+    localStorage.setItem("fullCSVData", JSON.stringify(csvData.split("\n").map(row => row.split(","))));
+    window.open("all_data.html", "_blank");
 });
 
+// DUPLICATE PAYMENTS button
 document.getElementById("processBtn").addEventListener("click", function () {
     if (!csvData) {
         alert("Please upload a CSV file first.");
         return;
     }
+
     processCSV(csvData);
 });
 
@@ -40,9 +43,8 @@ function processCSV(csv) {
 
     // Remove rows where Column S (index 18) contains "fake_bank"
     let filteredData = data.filter(row => 
-        row[18]?.trim() !== "fake_bank" &&
-        row[6]?.trim() === "CARD"
-    );    
+        row[18]?.trim() !== "fake_bank"
+    );
 
     let duplicates = findAllDuplicates(filteredData);
     displayData(duplicates);
@@ -79,11 +81,11 @@ function findAllDuplicates(data) {
     return duplicates;
 }
 
-function displayData(data) {
+function displayData(duplicates) {
     let tableBody = document.querySelector("#outputTable tbody");
     tableBody.innerHTML = ""; // Clear previous data
 
-    data.forEach(row => {
+    duplicates.forEach(row => {
         let tr = document.createElement("tr");
 
         let columnsToShow = [24, 23, 18, 6, 1, 4, 16, 8, 13, 14]; // B, E, G, I, N, O (Date), Q, S
@@ -97,7 +99,7 @@ function displayData(data) {
         tableBody.appendChild(tr);
     });
 
-    if (data.length === 0) {
-        alert("No data to display.");
+    if (duplicates.length === 0) {
+        alert("No duplicate payments found.");
     }
 }
