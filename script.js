@@ -30,7 +30,10 @@ function processCSV(csv) {
     let data = rows.slice(1); // Remaining rows
 
     // Remove rows where Column S (index 18) contains "fake_bank"
-    let filteredData = data.filter(row => row[18]?.trim() !== "fake_bank");
+    let filteredData = data.filter(row => 
+        row[18]?.trim() !== "fake_bank"&&
+        row[6]?.trim() === "CARD"
+    );    
 
     let duplicates = findAllDuplicates(filteredData);
     displayData(duplicates);
@@ -42,19 +45,19 @@ function findAllDuplicates(data) {
 
     data.forEach((row, index) => {
         let key = row[16] + row[13] + row[8]; // Using Q (Merchant Name), N (PAN), I (Amount)
+        let currentDate = row[14]; // Extracting accurate date from Column O (Date/Time)
 
         if (seen.has(key)) {
             let prevRows = seen.get(key);
             
-            // Compare each new row with every stored row to check the 10-minute rule
             prevRows.forEach(prevRow => {
                 let prevTime = new Date(prevRow[14]).getTime();
-                let currTime = new Date(row[14]).getTime();
+                let currTime = new Date(currentDate).getTime();
                 let timeDiff = Math.abs(currTime - prevTime) / 60000; // Convert to minutes
 
                 if (timeDiff < 10) {
-                    duplicates.push(prevRow); // Store previous duplicate
-                    duplicates.push(row); // Store current duplicate
+                    duplicates.push([...prevRow]); // Store previous duplicate
+                    duplicates.push([...row]); // Store current duplicate with accurate date
                 }
             });
 
@@ -74,7 +77,7 @@ function displayData(duplicates) {
     duplicates.forEach(row => {
         let tr = document.createElement("tr");
 
-        let columnsToShow = [1, 4, 6, 8, 13, 14, 16, 18]; // B, E, G, I, N, O, Q, S
+        let columnsToShow = [1, 4, 6, 8, 13, 14, 16, 18]; // B, E, G, I, N, O (Date), Q, S
 
         columnsToShow.forEach(index => {
             let td = document.createElement("td");
