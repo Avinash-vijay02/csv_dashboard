@@ -74,8 +74,7 @@ function displayData(duplicates) {
     duplicates.forEach(row => {
         let tr = document.createElement("tr");
 
-        let columnsToShow = [1, 4, 6, 8, 13, 14, 16, 18, 23, 24]; 
-        // B, E, G, I, N, O (Date), Q, S, X (Partner Name), Y (Payment ID)
+        let columnsToShow = [1, 4, 6, 8, 13, 14, 16, 18, 23, 24]; // B, E, G, I, N, O, Q, S, X (Partner Name), Y (Payment ID)
 
         columnsToShow.forEach(index => {
             let td = document.createElement("td");
