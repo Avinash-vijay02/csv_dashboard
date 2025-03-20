@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All CSV Data</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ALL CSV DATA</h1>
+        <table id="allDataTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+        <button onclick="window.close()">Close</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let allData = JSON.parse(localStorage.getItem("fullCSVData")) || [];
+            let table = document.getElementById("allDataTable");
+
+            if (allData.length > 0) {
+                let thead = table.querySelector("thead");
+                let tbody = table.querySelector("tbody");
+
+                thead.innerHTML = "<tr>" + allData[0].map(col => `<th>${col}</th>`).join("") + "</tr>";
+                tbody.innerHTML = allData.slice(1).map(row => 
+                    "<tr>" + row.map(col => `<td>${col}</td>`).join("") + "</tr>"
+                ).join("");
+            } else {
+                table.innerHTML = "<p>No data available.</p>";
+            }
+        });
+    </script>
+</body>
+</html>
