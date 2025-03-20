@@ -30,7 +30,10 @@ function processCSV(csv) {
     let data = rows.slice(1); // Remaining rows
 
     // Remove rows where Column S (index 18) contains "fake_bank"
-    let filteredData = data.filter(row => row[18]?.trim() !== "fake_bank");
+    let filteredData = data.filter(row => 
+        row[18]?.trim() !== "fake_bank"&&
+        row[6]?.trim() === "CARD"
+    );    
 
     let duplicates = findAllDuplicates(filteredData);
     displayData(duplicates);
@@ -74,7 +77,7 @@ function displayData(duplicates) {
     duplicates.forEach(row => {
         let tr = document.createElement("tr");
 
-        let columnsToShow = [1, 4, 6, 8, 13, 14, 16, 18, 23, 24]; // B, E, G, I, N, O, Q, S, X (Partner Name), Y (Payment ID)
+        let columnsToShow = [24, 23, 18, 6, 1, 4, 16, 8, 13, 14]; // B, E, G, I, N, O (Date), Q, S
 
         columnsToShow.forEach(index => {
             let td = document.createElement("td");
