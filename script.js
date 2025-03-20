@@ -32,11 +32,11 @@ function processCSV(csv) {
     // Remove rows where Column S (index 18) contains "fake_bank"
     let filteredData = data.filter(row => row[18]?.trim() !== "fake_bank");
 
-    let duplicates = findDuplicates(filteredData);
+    let duplicates = findAllDuplicates(filteredData);
     displayData(duplicates);
 }
 
-function findDuplicates(data) {
+function findAllDuplicates(data) {
     let seen = new Map();
     let duplicates = [];
 
@@ -44,18 +44,21 @@ function findDuplicates(data) {
         let key = row[16] + row[13] + row[8]; // Using Q (Merchant Name), N (PAN), I (Amount)
 
         if (seen.has(key)) {
-            let prevRow = seen.get(key);
+            let prevRows = seen.get(key);
+            prevRows.push(row); // Store all duplicate rows
 
-            // Convert Column O (Date) into timestamp & compare time difference
-            let prevTime = new Date(prevRow[14]).getTime();
-            let currTime = new Date(row[14]).getTime();
-            let timeDiff = Math.abs(currTime - prevTime) / 60000; // Convert milliseconds to minutes
+            // Compare each new row with every stored row to check the 10-minute rule
+            prevRows.forEach(prevRow => {
+                let prevTime = new Date(prevRow[14]).getTime();
+                let currTime = new Date(row[14]).getTime();
+                let timeDiff = Math.abs(currTime - prevTime) / 60000; // Convert to minutes
 
-            if (timeDiff < 10) {
-                duplicates.push(row);
-            }
+                if (timeDiff < 10) {
+                    duplicates.push(row);
+                }
+            });
         } else {
-            seen.set(key, row);
+            seen.set(key, [row]); // Store first occurrence as an array
         }
     });
 
