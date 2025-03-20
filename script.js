@@ -40,13 +40,12 @@ function findAllDuplicates(data) {
     let seen = new Map();
     let duplicates = [];
 
-    data.forEach(row => {
+    data.forEach((row, index) => {
         let key = row[16] + row[13] + row[8]; // Using Q (Merchant Name), N (PAN), I (Amount)
 
         if (seen.has(key)) {
             let prevRows = seen.get(key);
-            prevRows.push(row); // Store all duplicate rows
-
+            
             // Compare each new row with every stored row to check the 10-minute rule
             prevRows.forEach(prevRow => {
                 let prevTime = new Date(prevRow[14]).getTime();
@@ -54,9 +53,12 @@ function findAllDuplicates(data) {
                 let timeDiff = Math.abs(currTime - prevTime) / 60000; // Convert to minutes
 
                 if (timeDiff < 10) {
-                    duplicates.push(row);
+                    duplicates.push(prevRow); // Store previous duplicate
+                    duplicates.push(row); // Store current duplicate
                 }
             });
+
+            prevRows.push(row); // Add the new row to the existing list
         } else {
             seen.set(key, [row]); // Store first occurrence as an array
         }
